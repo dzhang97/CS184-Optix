@@ -27,4 +27,66 @@
 <h1 align="middle">Final Project</h1>
 <h2 align="middle">Keming Kao, Denis Li, David Zhang</h2>
 
+<h2 align="middle">Title, Summary, and Team Members</h2>
+
+<p>
+	<strong>NVIDIA OptiX as A Tool to Accelerate Path Tracing</strong>
+	<br>By leveraging the NVIDIA OptiX API, we can speed up ray tracing using the CUDA cores in powerful GPUs that supports all the methods implemented in project 3. We expect to see a stark contrast between CPU rendering and GPU rendering as a result.
+	<br><br><strong>Team Members:</strong>
+	<br>Keming Kao 26058492
+	<br>Denis Li 26810418
+	<br>David Zhang 26119473
+</p>
+
+<div align="center">
+            <table style="width=100%">
+               <tr>
+                  <td>
+                    <img src="images/optix.jpg" align="middle" width="100px"/>
+                  </td>
+                  <td>
+                    <img src="images/cuda.jpg" align="middle" width="480px"/>
+                  </td>
+                  <td>
+                    <img src="images/gpu.jpg" align="middle" width="400px"/>
+                  </td>
+                </tr>
+            </table>
+</div>
+
+<h2 align="middle">Problem Description</h2>
+<p>While the pathtracer from the previous projects in class produce realistic results, the time required for rendering is incredibly long. With the OptiX api from Nvidia, this process can be shortened to real time.what the fuck else do i say</p>
+
+<h2 align="middle">Goals and Deliverables</h2>
+<h3 align="middle">Plan to Deliver</h3>
+<dl>
+	<dt>Replace all rendering in project 3-2 functionality with OptiX api calls in order to offload processing to the GPU.</dt> 
+		<dd>- This should allow for near instantaneous rendering using the base code from project 3-2.</dd> 
+		<dd>- We can measure the speedup by rendering the same image with both systems, although it is likely this will show much better results for the GPU-accelerated results.</dd> 
+	<dt>Images should be compared afterwards to determine how close our implementation is to the final project 3-2 ray tracer.</dt>
+</dl>
+
+<h3 align="middle">Hope to Deliver</h3>
+<dl>
+	<dt>Modify the base code to allow for real time manipulation of the image.</dt> 
+		<dd>- Since the assumption in the previous project was that rendering would take a large amount of time, scene manipulation after the rendering had started was minimal.</dd> 
+		<dd>- Now that the GPU acceleration allows for much faster rendering, we should be able to enable real time manipulation of the scene.</dd>
+</dl>
+
+<h2 align="middle">Schedule</h2>
+<p>
+<strong>4/9:</strong> Installation of OptiX, ray tracing, bvh construction, normal shader
+<br><strong>4/16:</strong> Diffuse shader, rendering time comparison to that of rendering on cpu
+<br><strong>4/23:</strong> Support for other materials such as glass and metals, rendering time comparison to that of rendering on cpu, Milestone Video/Slides
+<br><strong>4/31:</strong> Real time rendering
+<br><strong>5/4:</strong> Final report website
+</p>
+
+<h2 align="middle">Resources</h2>
+<p>
+<a href="http://raytracing-docs.nvidia.com/optix/index.html">OptiX Documentation</a>
+<br><a href="https://cs184.eecs.berkeley.edu/article/14">Project 3-1</a>
+<br><a href="https://cs184.eecs.berkeley.edu/article/22">Project 3-2</a>
+</p>
+
 
