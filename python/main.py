@@ -8,7 +8,7 @@ def window():
    b.setText("Hello World!")
    w.setGeometry(100,100,200,50)
    b.move(50,20)
-   w.setWindowTitle(“PyQt”)
+   w.setWindowTitle("pyQt")
    w.show()
    sys.exit(app.exec_())
 	
