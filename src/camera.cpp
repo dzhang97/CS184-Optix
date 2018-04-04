@@ -175,30 +175,23 @@ Ray Camera::generate_ray(double x, double y) const {
   // canonical sensor plane one unit away from the pinhole.
   // Note: hFov and vFov are in degrees.
   // 
-
-  Vector3D dir = Vector3D((2*x-1)*tan(radians(hFov)*.5), (2*y-1)*tan(radians(vFov)*.5),-1);
-  dir = c2w*dir;
-  Ray r = Ray(pos, dir.unit());
+  Ray r = Ray(pos, (c2w * Vector3D(tan(radians((x-.5) * hFov)), tan(radians((y-.5) * vFov)), -1)).unit());
   r.min_t = nClip;
   r.max_t = fClip;
   return r;
-
 }
 
 Ray Camera::generate_ray_for_thin_lens(double x, double y, double rndR, double rndTheta) const {
 
-  // Todo 3-2, Task 4:
-  // compute position and direction of ray from the input sensor sample coordinate.
-  // Note: use rndR and rndTheta to uniformly sample a unit disk.
-  Vector3D dirr = Vector3D((2*x-1)*tan(radians(hFov)*.5), (2*y-1)*tan(radians(vFov)*.5),-1).unit();
-  Vector3D pLens = Vector3D(lensRadius*sqrt(rndR)*cos(2*PI*rndTheta),
-                            lensRadius*sqrt(rndR)*sin(2*PI*rndTheta), 0);
-  double focusT  = -focalDistance / dirr.z;
-  Vector3D pFocus = dirr * focusT;
-  Ray r = Ray(c2w*pLens + pos, (c2w*(pFocus - pLens)).unit());
-  r.min_t = nClip;
-  r.max_t = fClip;
-  return r;
+    // Todo 3-2, Task 4:
+    // compute position and direction of ray from the input sensor sample coordinate.
+    // Note: use rndR and rndTheta to uniformly sample a unit disk.
+    Vector3D pLens = Vector3D(lensRadius*sqrt(rndR)*cos(2.0*PI*rndTheta), lensRadius*sqrt(rndR)*sin(2.0*PI*rndTheta), 0);
+    Vector3D pFocus = Vector3D(tan(radians((x-.5) * hFov)), tan(radians((y-.5) * vFov)), -1) * focalDistance;
+    Ray r = Ray(c2w * pLens + pos, c2w * (pFocus - pLens).unit());
+    r.min_t = nClip;
+    r.max_t = fClip;
+    return r;
 }
 
 

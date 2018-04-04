@@ -45,49 +45,6 @@ void BVHAccel::drawOutline(BVHNode *node, const Color& c) const {
   }
 }
 
-void split(BVHNode *parent, BBox centroid_bbox, size_t max_leaf_size) {
-  if (parent->prims->size() <= max_leaf_size)
-    return;
-
-  vector<Primitive *> *prims_left = new vector<Primitive *>();
-  vector<Primitive *> *prims_right = new vector<Primitive *>();
-  BBox centroid_box_left, bbox_left, centroid_box_right, bbox_right;
-
-  int axis = 0;
-  if (centroid_bbox.extent[1] > centroid_bbox.extent[0] && centroid_bbox.extent[1] > centroid_bbox.extent[2])
-    axis = 1;
-  else if (centroid_bbox.extent[2] > centroid_bbox.extent[0] && centroid_bbox.extent[2] > centroid_bbox.extent[1])
-    axis = 2;
-  double s = centroid_bbox.min[axis] + (centroid_bbox.extent[axis] / 2);
-
-  for (Primitive *p : *(parent->prims)) {
-    BBox bb = p->get_bbox();
-    Vector3D c = bb.centroid();
-    if (c[axis] <= s) {
-      bbox_left.expand(bb);
-      centroid_box_left.expand(c);
-      prims_left->push_back(p);
-    } else {
-      bbox_right.expand(bb);
-      centroid_box_right.expand(c);
-      prims_right->push_back(p);
-    }
-  }
-
-  BVHNode *l = new BVHNode(bbox_left);
-  l->prims = prims_left;
-  BVHNode *r = new BVHNode(bbox_right);
-  r->prims = prims_right;
-
-  parent->prims = NULL;
-  split(l, centroid_box_left, max_leaf_size);
-  split(r, centroid_box_right, max_leaf_size);
-
-  parent->l = l;
-  parent->r = r;
-  return;
-}
-
 BVHNode *BVHAccel::construct_bvh(const std::vector<Primitive*>& prims, size_t max_leaf_size) {
   
   // TODO (Part 2.1):
@@ -95,21 +52,80 @@ BVHNode *BVHAccel::construct_bvh(const std::vector<Primitive*>& prims, size_t ma
   // size configuration. The starter code build a BVH aggregate with a
   // single leaf node (which is also the root) that encloses all the
   // primitives.
+  //cout << prims.size() << endl;
+  BBox bbox;
 
-  BBox centroid_box, bbox;
+  std::vector<double> xs, ys, zs;
 
   for (Primitive *p : prims) {
     BBox bb = p->get_bbox();
     bbox.expand(bb);
-    Vector3D c = bb.centroid();
-    centroid_box.expand(c);
+    xs.push_back(bb.centroid().x);
+    ys.push_back(bb.centroid().y);
+    zs.push_back(bb.centroid().z);
   }
+
+  if (prims.size() <= max_leaf_size) {
+    BVHNode *node = new BVHNode(bbox);
+    node->prims = new vector<Primitive *>(prims);
+    return node;
+  }
+
+  double dx = bbox.max.x - bbox.min.x;
+  double dy = bbox.max.y - bbox.min.y;
+  double dz = bbox.max.z - bbox.min.z;
+  double mid;
+  int ind;
+
+  if (dx >= dy && dx >= dz) {
+    std::sort(xs.begin(), xs.end());
+    mid = xs[xs.size() / 2];
+    ind = 0;
+  } else if (dy >= dx && dy >= dz) {
+    std::sort(ys.begin(), ys.end());
+    mid = ys[ys.size() / 2];
+    ind = 1;
+  } else {
+    std::sort(zs.begin(), zs.end());
+    mid = zs[zs.size() / 2];
+    ind = 2;
+  }
+
+  vector<Primitive*> *left = new vector<Primitive *>();
+  vector<Primitive*> *right = new vector<Primitive *>();
+
+  for (Primitive *p : prims) {
+    if (p->get_bbox().centroid()[ind] <= mid) {
+      left->push_back(p);
+    } else {
+      right->push_back(p);
+    }
+  }
+
+  if (left->size() == 0 || right->size() == 0) {
+    vector<Primitive*> *big, *small;
+    if (left->size() == 0) {
+      small = left;
+      big = right;
+    } else {
+      small = right;
+      big = left;
+    }
+    for (int i = 0; i < big->size() / 2; i++) {
+      small->push_back(big->back());
+      big->pop_back();
+    }
+  }
+
+  //cout << left->size() << " " << right->size() << endl;
 
   BVHNode *node = new BVHNode(bbox);
   node->prims = new vector<Primitive *>(prims);
-  split(node, centroid_box, max_leaf_size);
+  node->l = construct_bvh(*left, max_leaf_size);
+  node->r = construct_bvh(*right, max_leaf_size);
   return node;
 }
+
 
 bool BVHAccel::intersect(const Ray& ray, BVHNode *node) const {
   // TODO (Part 2.3):
@@ -117,15 +133,14 @@ bool BVHAccel::intersect(const Ray& ray, BVHNode *node) const {
   // Take note that this function has a short-circuit that the
   // Intersection version cannot, since it returns as soon as it finds
   // a hit, it doesn't actually have to find the closest hit.
-  if (node == NULL)
-    node = root;
   double t0, t1;
-  if (!(node->bb.intersect(ray, t0, t1)))
+  if (!node->bb.intersect(ray, t0, t1)) {
     return false;
+  }
   if (node->isLeaf()) {
     for (Primitive *p : *(node->prims)) {
       total_isects++;
-      if (p->intersect(ray))
+      if (p->intersect(ray)) 
         return true;
     }
     return false;
@@ -136,23 +151,23 @@ bool BVHAccel::intersect(const Ray& ray, BVHNode *node) const {
 bool BVHAccel::intersect(const Ray& ray, Intersection* i, BVHNode *node) const {
   // TODO (Part 2.3):
   // Fill in the intersect function.
-  if (node == NULL)
-    node = root;
   double t0, t1;
-  if (!(node->bb.intersect(ray, t0, t1)))
+  if (!node->bb.intersect(ray, t0, t1)) {
     return false;
+  }
   if (node->isLeaf()) {
+    //cout << (*(node->prims)).size() << endl;
     bool hit = false;
     for (Primitive *p : *(node->prims)) {
       total_isects++;
-      if (p->intersect(ray, i))
+      if (p->intersect(ray, i)) 
         hit = true;
     }
     return hit;
   }
-
-  bool temp = intersect(ray, i, node->l);
-  return intersect(ray, i, node->r) || temp;
+  bool b0 = intersect(ray, i, node->l);
+  bool b1 = intersect(ray, i, node->r);
+  return b0 || b1;
 }
 
 }  // namespace StaticScene

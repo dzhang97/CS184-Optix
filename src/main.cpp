@@ -109,10 +109,10 @@ int main( int argc, char** argv ) {
           config.pathtracer_max_ray_depth = atoi(optarg);
           break;
       case 'b':
-          config.pathtracer_lensRadius = atof(optarg);
+          config.pathtracer_lensRadius = (double)atof(optarg);
           break;
       case 'd':
-          config.pathtracer_focalDistance = atof(optarg);
+          config.pathtracer_focalDistance = (double)atof(optarg);
           break;
       case 'e':
           config.pathtracer_envmap = load_exr(optarg);

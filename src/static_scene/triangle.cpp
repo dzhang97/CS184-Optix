@@ -19,49 +19,42 @@ BBox Triangle::get_bbox() const {
 }
 
 bool Triangle::intersect(const Ray& r) const {
-
+  
   // Part 1, Task 3: implement ray-triangle intersection
-  Vector3D p1(mesh->positions[v1]), p2(mesh->positions[v2]), p3(mesh->positions[v3]);
-  Vector3D e1 = p2-p1;
-  Vector3D e2 = p3-p1;
-  Vector3D s = r.o-p1;
+  Vector3D p0(mesh->positions[v1]), p1(mesh->positions[v2]), p2(mesh->positions[v3]);
+  Vector3D e1 = p1 - p0;
+  Vector3D e2 = p2 - p0;
+  Vector3D s = r.o - p0;
   Vector3D s1 = cross(r.d, e2);
   Vector3D s2 = cross(s, e1);
-  double t = dot(s2, e2) / dot(s1, e1);
-  double b1 = dot(s1, s) / dot(s1, e1);
-  double b2 = dot(s2, r.d) / dot(s1, e1);
-  if (t>=r.min_t && t<=r.max_t && 0 >= b1 && b2 >= 0 && b2+b1 <= 1)
-  {
-    r.max_t = t;
-    return true;
-  }
-  else
-    return false;
+  Vector3D out = (Vector3D(dot(s2, e2), dot(s1, s), dot(s2, r.d)) / (dot(s1, e1)));
+  if (out.x > r.max_t || out.x < r.min_t || out.y < 0 || out.z < 0 || out.y + out.z > 1) return false;
+  r.max_t = out.x;
+  return true;
 }
 
 bool Triangle::intersect(const Ray& r, Intersection *isect) const {
-
-  // Part 1, Task 3:
+  
+  // Part 1, Task 3: 
   // implement ray-triangle intersection. When an intersection takes
   // place, the Intersection data should be updated accordingly
-  Vector3D p1(mesh->positions[v1]), p2(mesh->positions[v2]), p3(mesh->positions[v3]);
+  Vector3D p0(mesh->positions[v1]), p1(mesh->positions[v2]), p2(mesh->positions[v3]);
   Vector3D n1(mesh->normals[v1]), n2(mesh->normals[v2]), n3(mesh->normals[v3]);
-  Vector3D e1 = p2 - p1;
-  Vector3D e2 = p3 - p1;
-  Vector3D s = r.o - p1;
+  Vector3D e1 = p1 - p0;
+  Vector3D e2 = p2 - p0;
+  Vector3D s = r.o - p0;
   Vector3D s1 = cross(r.d, e2);
-  Vector3D s2 = cross(s, e1);;
-  double t = dot(s2, e2) / dot(s1, e1);
-  double b1 = dot(s1, s) / dot(s1, e1);
-  double b2 = dot(s2, r.d) / dot(s1, e1);
-  if (t >= r.min_t && t <= r.max_t && 0 <= b1 && 0 <= b2 && b2 + b1 <= 1) {
-    isect->t = t;
-    isect->n = b1 * n1 + b2 * n2 + (1 - b1 - b2) * n3;
+  Vector3D s2 = cross(s, e1);
+  Vector3D out = (Vector3D(dot(s2, e2), dot(s1, s), dot(s2, r.d)) / (dot(s1, e1)));
+  if (out.x > r.max_t || out.x < r.min_t || out.y < 0 || out.z < 0 || out.y + out.z > 1) return false;
+  r.max_t = out.x;
+  if (intersect(r)) {
+    isect->t = r.max_t;
     isect->primitive = this;
     isect->bsdf = get_bsdf();
-    r.max_t = t;
+    isect->n = (1-out.y-out.z) * n1 + out.y * n2 + out.z * n3;
     return true;
-  }
+  }  
   return false;
 }
 
