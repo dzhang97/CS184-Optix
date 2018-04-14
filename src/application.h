@@ -113,6 +113,14 @@ class Application : public Renderer {
     camera.load_settings(filename);
   }
 
+  void set_camera_cpos(Vector3D v) {
+    camera.cl_cpos(v);
+  }
+
+  void set_camera_tpos(Vector3D v) {
+    camera.cl_tpos(v);
+  }
+
  private:
 
   enum Mode {

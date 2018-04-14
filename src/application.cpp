@@ -479,6 +479,9 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
     case EDIT_MODE:
       if (event == EVENT_PRESS) {
         switch(key) {
+          case 'z': case 'Z':
+            cout << "cpos=" << camera.pos << "tpos=" << camera.targetPos << endl;
+            break;
           case 'r': case 'R':
             set_up_pathtracer();
             pathtracer->start_raytracing();

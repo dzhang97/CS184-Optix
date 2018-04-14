@@ -168,6 +168,14 @@ void Camera::load_settings(string filename) {
   cout << "[Camera] Loaded settings from " << filename << endl;
 }
 
+void Camera::cl_cpos(Vector3D v) {
+  pos = v;
+}
+
+void Camera::cl_tpos(Vector3D v) {
+  targetPos = v;
+}
+
 Ray Camera::generate_ray(double x, double y) const {
 
   // TODO (Part 1.2):

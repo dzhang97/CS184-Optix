@@ -28,7 +28,7 @@ void usage(const char* binaryName) {
   printf("  -e  <PATH>       Path to environment map\n");
   printf("  -f  <FILENAME>   Image (.png) file to save output to in windowless mode\n");
   printf("  -r  <INT> <INT>  Width and height of output image (if windowless)\n");
-  printf("  -h               Print this help message\n");
+  printf("  -h               Print this help message\n"); 
   printf("\n");
 }
 
@@ -78,7 +78,8 @@ int main( int argc, char** argv ) {
   bool write_to_file = false;
   size_t w = 0, h = 0, x = -1, y = 0, dx = 0, dy = 0;
   string filename, cam_settings = "";
-  while ( (opt = getopt(argc, argv, "s:l:t:m:e:h:H:f:r:c:a:p:b:d:")) != -1 ) {  // for each option...
+  Vector3D *cpos, *tpos = NULL;
+  while ( (opt = getopt(argc, argv, "s:l:t:m:e:h:H:f:r:c:a:p:b:d:z:y")) != -1 ) {  // for each option...
     switch ( opt ) {
       case 'f':
           write_to_file = true;
@@ -96,6 +97,17 @@ int main( int argc, char** argv ) {
           dy = atoi(argv[optind+2]);
           optind += 3;
           break;
+
+      // Add options for changing camera position and target
+      case 'z':
+          cpos = new Vector3D(atof(argv[optind-1]), atof(argv[optind]), atof(argv[optind+1]));
+          optind += 2;
+          break;
+      case 'y':
+          tpos = new Vector3D(atof(argv[optind-1]), atof(argv[optind]), atof(argv[optind+1]));
+          optind += 2;
+          break;
+
       case 's':
           config.pathtracer_ns_aa = atoi(optarg);
           break;
@@ -192,6 +204,12 @@ int main( int argc, char** argv ) {
 
   if (cam_settings != "")
     app->load_camera(cam_settings);
+
+  if (cpos != NULL) 
+  app->set_camera_cpos(*cpos);
+
+  if (tpos != NULL) 
+    app->set_camera_tpos(*tpos);
 
   // start viewer
   viewer.start();

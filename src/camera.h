@@ -75,6 +75,8 @@ class Camera {
 
   virtual void dump_settings(std::string filename);
   virtual void load_settings(std::string filename);
+  void cl_cpos(Vector3D v);
+  void cl_tpos(Vector3D v);
 
   /**
    * Returns a world-space ray from the camera that corresponds to a
@@ -93,15 +95,15 @@ class Camera {
   double lensRadius;
   double focalDistance;
 
+  // Current position and target point (the point the camera is looking at).
+  Vector3D pos, targetPos;
+
  protected:
   // Computes pos, screenXDir, screenYDir from target, r, phi, theta.
   void compute_position();
 
   // Field of view aspect ratio, clipping planes.
   double hFov, vFov, ar, nClip, fClip;
-
-  // Current position and target point (the point the camera is looking at).
-  Vector3D pos, targetPos;
 
   // Orientation relative to target, and min & max distance from the target.
   double phi, theta, r, minR, maxR;
