@@ -31,9 +31,6 @@ class LightField:
 
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
-    lf = LightField("images/example_image_", 3)
-    plt.figure()
-    plt.imshow(lf.get_side_by_side())
-    plt.figure()
+    lf = LightField("images/example_image_", 3, 945, 705)
     plt.imshow(lf.get_square())
     plt.show()
