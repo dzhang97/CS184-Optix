@@ -168,12 +168,17 @@ void Camera::load_settings(string filename) {
   cout << "[Camera] Loaded settings from " << filename << endl;
 }
 
-void Camera::cl_cpos(Vector3D v) {
-  pos = v;
-}
-
 void Camera::cl_tpos(Vector3D v) {
   targetPos = v;
+}
+
+void Camera::cl_ori(Vector3D v, Vector2D w) {
+  phi = v.x;
+  theta = v.y;
+  r = v.z;
+  minR = w.x;
+  maxR = w.y;
+  place(targetPos, phi, theta, r, minR, maxR);
 }
 
 Ray Camera::generate_ray(double x, double y) const {
