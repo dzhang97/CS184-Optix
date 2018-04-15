@@ -118,10 +118,10 @@ void PathTracer::set_camera(Camera *camera) {
     return;
   }
   this->camera = camera;
-  if (!this->camera->lensRadius)
-    this->camera->lensRadius = lensRadius;
-  if (!this->camera->focalDistance) 
-    this->camera->focalDistance = focalDistance;
+  //if (!this->camera->lensRadius)
+  this->camera->lensRadius = lensRadius;
+  //if (!this->camera->focalDistance) 
+  this->camera->focalDistance = focalDistance;
   if (has_valid_configuration()) {
     state = READY;
   }

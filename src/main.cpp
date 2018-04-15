@@ -78,9 +78,22 @@ int main( int argc, char** argv ) {
   bool write_to_file = false;
   size_t w = 0, h = 0, x = -1, y = 0, dx = 0, dy = 0;
   string filename, cam_settings = "";
-  Vector3D *cpos, *tpos = NULL;
-  while ( (opt = getopt(argc, argv, "s:l:t:m:e:h:H:f:r:c:a:p:b:d:z:y")) != -1 ) {  // for each option...
+  Vector3D *cpos = NULL, *tpos = NULL, *ori = NULL;
+  Vector2D *rs = NULL;
+  while ( (opt = getopt(argc, argv, "s:l:t:m:e:h:H:f:r:c:a:p:b:d:z:y:x:")) != -1 ) {  // for each option...
     switch ( opt ) {
+      case 'y':
+          tpos = new Vector3D(atof(argv[optind-1]), atof(argv[optind]), atof(argv[optind+1]));
+          cout << atof(argv[optind-1]) << ' ' << atof(argv[optind]) << ' ' << atof(argv[optind+1]) << endl;
+          optind += 2;
+          break;
+      case 'x':
+          ori = new Vector3D(atof(argv[optind-1]), atof(argv[optind]), atof(argv[optind+1]));
+          rs = new Vector2D(atof(argv[optind+2]), atof(argv[optind+3]));
+          cout << atof(argv[optind-1]) << ' ' << atof(argv[optind]) << ' ' << atof(argv[optind+1]) << endl;
+          cout << atof(argv[optind+2]) << ' ' << atof(argv[optind+3]) << endl;
+          optind += 4;
+          break;
       case 'f':
           write_to_file = true;
           filename  = string(optarg);
@@ -96,16 +109,6 @@ int main( int argc, char** argv ) {
           dx = atoi(argv[optind+1]);
           dy = atoi(argv[optind+2]);
           optind += 3;
-          break;
-
-      // Add options for changing camera position and target
-      case 'z':
-          cpos = new Vector3D(atof(argv[optind-1]), atof(argv[optind]), atof(argv[optind+1]));
-          optind += 2;
-          break;
-      case 'y':
-          tpos = new Vector3D(atof(argv[optind-1]), atof(argv[optind]), atof(argv[optind+1]));
-          optind += 2;
           break;
 
       case 's':
@@ -152,7 +155,7 @@ int main( int argc, char** argv ) {
     usage(argv[0]);
     return 1;
   }
-
+  //optind ++ ;
   string sceneFilePath = argv[optind];
   msg("Input scene file: " << sceneFilePath);
   string sceneFile = sceneFilePath.substr(sceneFilePath.find_last_of('/')+1);
@@ -205,11 +208,11 @@ int main( int argc, char** argv ) {
   if (cam_settings != "")
     app->load_camera(cam_settings);
 
-  if (cpos != NULL) 
-  app->set_camera_cpos(*cpos);
-
   if (tpos != NULL) 
     app->set_camera_tpos(*tpos);
+
+  if (ori != NULL && rs != NULL) 
+    app->set_camera_ori(*ori, *rs);
 
   // start viewer
   viewer.start();
