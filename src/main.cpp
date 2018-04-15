@@ -184,6 +184,12 @@ int main( int argc, char** argv ) {
     if (cam_settings != "")
       app->load_camera(cam_settings);
 
+    if (tpos != NULL) 
+      app->set_camera_tpos(*tpos);
+
+    if (ori != NULL && rs != NULL) 
+      app->set_camera_ori(*ori, *rs);
+
     app->render_to_file(filename, x, y, dx, dy);
     return 0;
   }
