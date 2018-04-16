@@ -30,7 +30,7 @@ class LightField:
         return side_by_side
 
     def get_pos(self, i):
-        middle = np.array([self.n/2 - 1, self.n/2 - 1])
+        middle = np.array([self.n/2, self.n/2])
         pos = np.array([i % self.n, i / self.n]) - middle
         return pos
         # if pos[1] > pos[0]:
@@ -67,15 +67,9 @@ class LightField:
 
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
-    lf = LightField("images/dragon", 3, 480, 360)
-    plt.figure()
-    plt.imshow(lf.get_refocused(0.1))
-    plt.figure()
-    plt.imshow(lf.get_refocused(0.2))
-    plt.figure()
-    plt.imshow(lf.get_refocused(0.3))
-    plt.figure()
-    plt.imshow(lf.get_refocused(0.4))
+    lf = LightField("images/dragon3", 3, 480, 360)
     plt.figure()
     plt.imshow(lf.get_refocused(0.5))
+    plt.figure()
+    plt.imshow(lf.get_refocused(-0.5))
     plt.show()
