@@ -86,10 +86,14 @@ class LightField:
 
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
-    lf = LightField("images/example_image_", 3, 480, 360)
-    # plt.figure()
-    # plt.imshow(lf.get_refocused(0.5))
-    plt.figure()
-    temp = lf.refocus(5)
-    plt.imshow(temp)
+    from matplotlib.widgets import Slider
+    lf = LightField("images/dragon_04_", 3, 480, 360)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    fig.subplots_adjust(bottom=.15)
+    ax.imshow(lf.refocus(0))
+    shift = Slider(fig.add_axes([0.15, .05, .75, .03]), 'Pixel Shift', -10, 10, valinit=0, valstep=1)
+    def update(val):
+        ax.imshow(lf.refocus(int(val)))
+    shift.on_changed(update)
     plt.show()
