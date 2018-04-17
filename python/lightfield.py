@@ -58,9 +58,11 @@ class LightField:
 
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
-    lf = LightField("images/example_image_", 3, 945, 705)
+    lf = LightField("images/dragon_02_", 3, 480, 360)
     # plt.figure()
     # plt.imshow(lf.get_refocused(0.5))
     plt.figure()
-    plt.imshow(lf.get_refocused(-4))
+    plt.imshow(lf.get_refocused(0))
+    plt.figure()
+    plt.imshow(lf.get_refocused(-1))
     plt.show()
