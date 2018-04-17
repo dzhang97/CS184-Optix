@@ -90,6 +90,18 @@ if __name__ == '__main__':
     # plt.figure()
     # plt.imshow(lf.get_refocused(0.5))
     plt.figure()
+<<<<<<< HEAD
     temp = lf.refocus(5)
     plt.imshow(temp)
+=======
+    plt.imshow(lf.get_refocused(0))
+    plt.figure()
+    plt.imshow(lf.get_refocused(-0.5))
+    plt.figure()
+    plt.imshow(lf.get_refocused(-0.5))
+    plt.figure()
+    plt.imshow(lf.get_refocused(-1.0))
+    plt.figure()
+    plt.imshow(lf.get_refocused(-1.5))
+>>>>>>> 5396e67d59cdbe609473ec8a4ce9f01fecadc1e6
     plt.show()
