@@ -8,6 +8,10 @@ class LightField:
         self.width = width
         self.height = height
         self.n = n
+        self.pos = {}
+        middle = np.array([int(self.n/2), int(self.n/2)])
+        for i in range(n**2):
+            self.pos[i] = np.array([i % self.n, i / self.n]) - middle
 
     def get_square(self):
         square = []
@@ -29,17 +33,6 @@ class LightField:
             side_by_side.append(row)
         return side_by_side
 
-    def get_pos(self, i):
-        middle = np.array([self.n/2, self.n/2])
-        pos = np.array([i % self.n, i / self.n]) - middle
-        return pos
-        # if pos[1] > pos[0]:
-        #     return -np.linalg.norm(pos)
-        # elif pos[1] < pos[0]:
-        #     return np.linalg.norm(pos)
-        # else
-        #     return 0
-
     def get_value(self, i, x, y):
         if (x >= self.width or y >= self.height):
             return np.array([0,0,0])
@@ -48,10 +41,10 @@ class LightField:
     def sample(self, x, y, f):
         color = np.array([0,0,0])
         for i in range(self.n ** 2):
-            pos = self.get_pos(i)
-            x += pos[0]*f
-            y += pos[1]*f
-            color += self.get_value(i, x, y)
+            pos = self.pos[i]
+            x_i = x + pos[0]*f
+            y_i = y + pos[1]*f
+            color += self.get_value(i, x_i, y_i)
         return color / (self.n ** 2)
 
     def get_refocused(self, f):
@@ -63,13 +56,11 @@ class LightField:
             image.append(row)
         return image
 
-
-
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
-    lf = LightField("images/dragon3", 3, 480, 360)
+    lf = LightField("images/example_image_", 3, 945, 705)
+    # plt.figure()
+    # plt.imshow(lf.get_refocused(0.5))
     plt.figure()
-    plt.imshow(lf.get_refocused(0.5))
-    plt.figure()
-    plt.imshow(lf.get_refocused(-0.5))
+    plt.imshow(lf.get_refocused(-4))
     plt.show()
