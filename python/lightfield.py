@@ -1,6 +1,23 @@
 from scipy import misc
 import numpy as np
 
+def shift_image(image, x, y):
+    temp = np.zeros_like(image, dtype=np.float64)
+    if x < 0:
+        temp[:,:x] = image[:,-x:]
+    elif x > 0:
+        temp[:,x:] = image[:,:-x]
+    else:
+        temp = image
+    ret = np.zeros_like(temp, dtype=np.float64)
+    if y < 0:
+        ret[:y] = temp[-y:]
+    elif y > 0:
+        ret[y:] = temp[:-y]
+    else:
+        ret = temp
+    return ret;
+
 class LightField:
     
     def __init__(self, path_prefix, n, width=480, height=360):
@@ -56,19 +73,23 @@ class LightField:
             image.append(row)
         return image
 
+    def refocus(self, f):
+        image = np.zeros(self.images[0].shape)
+        shifty = -(f*(self.n-1)/2)
+        for j in range(self.n):
+            shiftx = -(f*(self.n-1)/2)
+            for i in range(self.n):
+                image += shift_image(self.images[j*self.n + i], shiftx, shifty)
+                shiftx += f
+            shifty += f
+        return np.round(image / self.n**2).astype(np.uint8)
+
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
-    lf = LightField("images/dragon_02_", 3, 480, 360)
+    lf = LightField("images/example_image_", 3, 480, 360)
     # plt.figure()
     # plt.imshow(lf.get_refocused(0.5))
     plt.figure()
-    plt.imshow(lf.get_refocused(0))
-    plt.figure()
-    plt.imshow(lf.get_refocused(-0.5))
-    plt.figure()
-    plt.imshow(lf.get_refocused(-0.5))
-    plt.figure()
-    plt.imshow(lf.get_refocused(-1.0))
-    plt.figure()
-    plt.imshow(lf.get_refocused(-1.5))
+    temp = lf.refocus(5)
+    plt.imshow(temp)
     plt.show()
