@@ -101,17 +101,18 @@ class Camera {
   // Orientation relative to target, and min & max distance from the target.
   double phi, theta, r, minR, maxR;
 
+  // camera-to-world rotation matrix (note: also need to translate a
+  // camera-space point by 'pos' to perform a full camera-to-world
+  // transform)
+  Matrix3x3 c2w;
+
+
  protected:
   // Computes pos, screenXDir, screenYDir from target, r, phi, theta.
   void compute_position();
 
   // Field of view aspect ratio, clipping planes.
   double hFov, vFov, ar, nClip, fClip;
-
-  // camera-to-world rotation matrix (note: also need to translate a
-  // camera-space point by 'pos' to perform a full camera-to-world
-  // transform)
-  Matrix3x3 c2w;
 
   // Info about screen to render to; it corresponds to the camera's full field
   // of view at some distance.

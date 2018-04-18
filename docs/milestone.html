@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Optix</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
+<h1 align="middle">Final Project Milestone</h1>
+<h2 align="middle">Keming Kao, Denis Li, David Zhang</h2>
+
+<h2 align="middle"></h2>
+
+<p>
+	<strong>NVIDIA OptiX as A Tool to Accelerate Path Tracing</strong>
+  <p>As a group, we agreed to change our project completely, as we did not realize that using the Nvidia Optix API would require having a Nvidia GPU in our system. One group member did have a GPU, but building the pathtracer project on Windows proved to be a whole project on its own, so we decided to switch to the light field camera project that extends pathtracer, which supports refocusing after rendering.</p>
+  <img src="images/gpumeme.jpg" align="middle" width="240px"/>
+</p>
+
+<h2 align="middle">Plan for Light Field Cameras</h2>
+<p></p>
+
+<h2 align="middle">Varying Camera Position</h2>
+<p>To achieve multiple shots in a localized area through our pinhole camera model, we needed an efficient way to render multiple images on multiple machines simultaneously, so one of the first goals we accomplished was enabling command line arguments for changing the camera's position and its target location (where it was pointing at). Through some simple code digging we created simple calls from main to application to camera that set the spherical coordinates of the camera and target location, as well as supporting printing out these coordinates in the edit mode of the renderer. We also printed out the X and Y normals to the camera direction from the c2w member of camera to be able to add fractional shifts to our camera position while being on the same XY plane.</p>
+
+
+

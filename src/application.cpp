@@ -481,7 +481,8 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
         switch(key) {
           case 'z': case 'Z':
             cout << "tpos=" << camera.targetPos << endl;
-            cout << "phi=" << camera.phi << "theta=" << camera.theta << "r=" << camera.r << "minr=" << camera.minR << "maxr=" << camera.maxR << endl;
+            cout << "phi=" << camera.phi << " theta=" << camera.theta << " r=" << camera.r << " minr=" << camera.minR << " maxr=" << camera.maxR << endl;
+            cout << "xDir=" << camera.c2w[0] << " yDir=" << camera.c2w[1] << endl;
             break;
           case 'r': case 'R':
             set_up_pathtracer();
