@@ -1,5 +1,6 @@
 from scipy import misc
 import numpy as np
+from math import floor, ceil
 
 class LightField:
     
@@ -96,31 +97,45 @@ class LightField:
                 + rx * self.shift_image(pos, shift_x_int, shift_y_int)
         return (1-ry)*c0 + ry*c1
 
-    def refocus(self, f):
+    def refocus(self, f, size):
         image = np.zeros(self.images[0].shape)
         shifty = -(f*(self.n-1)/2)
         for j in range(self.n):
-            shiftx = -(f*(self.n-1)/2)
-            for i in range(self.n):
-                pos = j*self.n + i
-                if self.bilerp:
-                    image += self.bilerp_shift(pos, shiftx, shifty)
-                else:
-                    image += self.shift_image(pos, int(shiftx), int(shifty))
-                shiftx += f
+            if j > floor((self.n - size) / 2) - 1 and j < self.n - ceil((self.n - size) / 2):
+                shiftx = -(f*(self.n-1)/2)
+                for i in range(self.n):
+                    pos = j*self.n + i
+                    if i > floor((self.n - size) / 2) - 1 and i < self.n - ceil((self.n - size) / 2):
+                        if self.bilerp:
+                            image += self.bilerp_shift(pos, shiftx, shifty)
+                        else:
+                            image += self.shift_image(pos, int(shiftx), int(shifty))
+                    shiftx += f
             shifty += f
-        return np.round(image / self.n**2).astype(np.uint8)
+        return np.round(image / size**2).astype(np.uint8)
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path')
+    parser.add_argument('num_images')
+    parser.add_argument('width')
+    parser.add_argument('height')
+    args = parser.parse_args()
+    lf = LightField(args.path, int(args.num_images), int(args.width), int(args.height))
+
     from matplotlib import pyplot as plt
     from matplotlib.widgets import Slider
-    lf = LightField("images/dragon_10_", 3, 480, 360)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    fig.subplots_adjust(bottom=.15)
-    ax.imshow(lf.refocus(0))
+    fig.subplots_adjust(bottom=.2)
+    ax.imshow(lf.refocus(0, lf.n))
+    size = Slider(fig.add_axes([0.15, .09, .75, .03]), 'Num Images', 1, lf.n, valinit=lf.n, valstep=1)
     shift = Slider(fig.add_axes([0.15, .05, .75, .03]), 'Pixel Shift', -10, 10, valinit=0.1, valstep=.1)
-    def update(val):
-        ax.imshow(lf.refocus(val))
-    shift.on_changed(update)
+    def update_size(val):
+        ax.imshow(lf.refocus(shift.val, val))
+    def update_focus(val):
+        ax.imshow(lf.refocus(val, size.val))
+    size.on_changed(update_size)
+    shift.on_changed(update_focus)
     plt.show()
