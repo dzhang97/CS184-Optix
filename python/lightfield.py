@@ -97,7 +97,7 @@ class LightField:
                 + rx * self.shift_image(pos, shift_x_int, shift_y_int)
         return (1-ry)*c0 + ry*c1
 
-    def refocus(self, f, size):
+    def refocus_no_skip(self, f, size):
         image = np.zeros(self.images[0].shape)
         shifty = -(f*(self.n-1)/2)
         for j in range(self.n):
@@ -114,6 +114,33 @@ class LightField:
             shifty += f
         return np.round(image / size**2).astype(np.uint8)
 
+    def refocus_skip(self, f, size, skip):
+        old_images, old_n = self.images, self.n
+        temp_images = []
+        for j in range(int((self.n - skip) // 2), int(self.n - ((self.n - skip) // 2)), int((skip - 1) // 2)):
+            for i in range(int((self.n - skip) // 2), int(self.n - ((self.n - skip) // 2)), int((skip - 1) // 2)):
+                temp_images.append(self.images[j*self.n + i])
+        self.images = temp_images
+        self.n = 3
+        image = self.refocus_no_skip(f*(skip//2), 3)
+        self.images = old_images
+        self.n = old_n
+        return image
+
+    def refocus(self, f, size, skip):
+        if skip == self.n:
+            return self.refocus_no_skip(f, size)
+        else:
+            return self.refocus_skip(f, size, skip)
+
+    def raw_data(self):
+        shape = self.images[0].shape
+        image = np.zeros((shape[0] * self.n, shape[1] * self.n, shape[2]), dtype=np.uint8)
+        for j in range(self.n):
+            for i in range(self.n):
+                image[i::self.n,j::self.n] = self.images[j*self.n+i]
+        return image
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -121,21 +148,31 @@ if __name__ == '__main__':
     parser.add_argument('num_images')
     parser.add_argument('width')
     parser.add_argument('height')
+    parser.add_argument('--raw', action='store_true')
     args = parser.parse_args()
     lf = LightField(args.path, int(args.num_images), int(args.width), int(args.height))
 
     from matplotlib import pyplot as plt
     from matplotlib.widgets import Slider
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    fig.subplots_adjust(bottom=.2)
-    ax.imshow(lf.refocus(0, lf.n))
-    size = Slider(fig.add_axes([0.15, .09, .75, .03]), 'Num Images', 1, lf.n, valinit=lf.n, valstep=1)
-    shift = Slider(fig.add_axes([0.15, .05, .75, .03]), 'Pixel Shift', -10, 10, valinit=0.1, valstep=.1)
-    def update_size(val):
-        ax.imshow(lf.refocus(shift.val, val))
-    def update_focus(val):
-        ax.imshow(lf.refocus(val, size.val))
-    size.on_changed(update_size)
-    shift.on_changed(update_focus)
+
+    if args.raw:
+        image = lf.raw_data()
+        plt.imshow(image)
+    else:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        fig.subplots_adjust(bottom=.2)
+        size = Slider(fig.add_axes([0.15, .09, .75, .03]), 'Num Images', 1, lf.n, valinit=lf.n, valstep=1)
+        shift = Slider(fig.add_axes([0.15, .05, .75, .03]), 'Pixel Shift', 0, 10, valinit=5.0, valstep=.1)
+        skip = Slider(fig.add_axes([0.15, .02, .75, .03]), 'Image Skip', 3, lf.n, valinit=lf.n, valstep=2)
+        ax.imshow(lf.refocus(size.val, shift.val, skip.val))
+        def update_size(val):
+            ax.imshow(lf.refocus(shift.val, val, skip.val))
+        def update_focus(val):
+            ax.imshow(lf.refocus(val, size.val, skip.val))
+        def update_skip(val):
+            ax.imshow(lf.refocus(shift.val, size.val, val))
+        size.on_changed(update_size)
+        shift.on_changed(update_focus)
+        skip.on_changed(update_skip)
     plt.show()
