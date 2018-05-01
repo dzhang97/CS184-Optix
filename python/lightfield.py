@@ -158,12 +158,15 @@ if __name__ == '__main__':
     if args.raw:
         image = lf.raw_data()
         plt.imshow(image)
+        # for val in np.arange(5.0, 11.0, 0.2):
+        #     misc.imsave("images/gif/" + str(np.round(val,2)) +".png", lf.refocus(val, 9, 9))
+
     else:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=.2)
-        size = Slider(fig.add_axes([0.15, .09, .75, .03]), 'Num Images', 1, lf.n, valinit=lf.n, valstep=1)
-        shift = Slider(fig.add_axes([0.15, .05, .75, .03]), 'Pixel Shift', 0, 10, valinit=5.0, valstep=.1)
+        size = Slider(fig.add_axes([0.15, .09, .75, .03]), 'Num Images', 1, lf.n, valinit=int(lf.n/2), valstep=1)
+        shift = Slider(fig.add_axes([0.15, .05, .75, .03]), 'Pixel Shift', 4.0, 12.0, valinit=10.0, valstep=.1)
         skip = Slider(fig.add_axes([0.15, .02, .75, .03]), 'Image Skip', 3, lf.n, valinit=lf.n, valstep=2)
         ax.imshow(lf.refocus(size.val, shift.val, skip.val))
         def update_size(val):
